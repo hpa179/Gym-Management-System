@@ -1,0 +1,27 @@
+FILTER
+
+1. Employees:
+Parameters: min_age and max_age
+Example: /api/employees/filter?min_age=25&max_age=30
+2. Gym:
+Parameters: state
+Example: /api/gym/filter?state=Virginia
+3. Members:
+Parameters: payment_plan
+Example: /api/members/filter?payment_plan=Priority%20$50/month
+4. Owner:
+Parameters: key_card
+Example: /api/owner/filter?key_card=12345
+5. Equipment:
+Parameters: equipment_type
+Example: /api/equipment/filter?equipment_type=cardio
+6. Payments:
+Parameters: member_id
+Example: /api/payments/filter?member_id=1
+7. Sessions:
+Parameters: instructor_id
+Example: /api/sessions/filter?employee_id=73
+8. Supplier:
+Parameters: equipment
+Example: /api/supplier/filter?supplier_id=1
+

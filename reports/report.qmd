@@ -1,0 +1,503 @@
+---
+title: Project Deliverable 4
+date: 10/12/23
+author: Emil Baez Salazar, Harita Agarwal, Anisha VijayKumar
+toc: true
+format:
+    html:
+        theme:
+            light: flatly
+            dark: darkly
+        fontcolor: darkblue
+        toc: false
+        embed-resources: true
+---
+
+### <u>Project Links</u>
+
+Github:
+
+* <https://github.com/cmsc-vcu/cmsc508-fa2023-prj-gymmanagementsystem>
+
+
+ER Diagram Design:
+
+* <https://lucid.app/lucidchart/76036f09-7a37-43ec-8189-af3c4a30f738/edit?viewport_loc=-1017%2C-600%2C4226%2C2252%2C0_0&invitationId=inv_5b7fafe1-c1d0-4dc7-a85b-7f327af2ce96>
+
+Project Proposal:
+
+* <https://vcu.mediaspace.kaltura.com/media/Harita+Agarwal%27s+Zoom+Meeting/1_y1ibykry>
+
+Design Solution:
+
+* <https://vcu.mediaspace.kaltura.com/media/Harita+Agarwal%27s+Zoom+Meeting/1_ig95khmt>
+
+## Problem Overview
+* Gym Management System is a web application that helps the user to manage their gym memberships and activities in an easy way by providing them with various facilities, but at the same time for owner to overview all aspects of the gym rather than going through thousands of papers. 
+
+## Problem description
+
+#### <b> Problem domain: provide summary of the problem domain, providing context, scope of the area. For example, one might talk about the building murals in Richmond, and provide a bit of history (or pictures), so that someone understands the problem domain.</b>
+
+* In today’s time, the majority of people rely on the internet for a variety of purposes, making online platforms essential for company growth. A complete program designed specifically for gyms, recreation centers, and health clubs is called the Gym Management System. 
+* It effectively handles activities, memberships, and members. The system requires little maintenance, however occasionally upgrades may be required. This system offers rapid access to information on members, trainers, and equipment with just a few clicks, in contrast to conventional paper records that require extensive reading. 
+* It features a set that goes far beyond traditional record-keeping and includes automation, member interaction, marketing and analytics. These aspects help gyms, recreation centers, and health clubs succeed and expand in the modern digital era. Additionally, it maintains data on equipment and instructors to facilitate contact with members.
+
+#### <b> Need: provide a summary on why a database is needed, and what problem it might help solve. Why does this database need to be developed? </b>
+
+* Most gym’s cater to a broad variety of people which is why I think that creating a gym database system coming from a student's perspective will make it more inclusive to a diverse group of college students while also meeting the needs of college students. For example, our gym management system can have an entity for social hours/class where the gym might host certain events/exercises in groups for students to socialize more. I also believe that it needs to be developed because managing a gym can be a hassle since there are so many details that go into having a successful gym.
+* A dedicated database allows effective member registration, attendance monitoring, and subscription renewals. It helps with solving the issue of manual paperwork and avoids errors in data that could result from utilizing numerous systems. 
+* The database helps with managing inventory for gyms that have supplies and equipment. It keeps track of inventory demands, maintenance schedules and equipment availability to minimize delay and provide a secure workout environment.
+* It also helps prioritize security and compliance as they are crucial in today's data-sensitive society. As a result, trust and credibility is enhanced. And safeguards member data and makes sure the gym follows data protection laws.
+
+#### <b> Context, scope and perspective: Who is the DB for, or what perspective will the DB represent? In the domain of sports teams, is the database for the coach, team owner, player, or fan?</b>
+ * In the domain of the gym management system our database focuses more on the perspective of the owner/administration which means that most of our entities will focus on what the owner would need to manage like employees, subscriptions, equipment, etc.
+
+#### <b> User roles and use cases: Identify the different user roles that will interact with the database. Describe their needs and how they will use the database. How will the database be used? Who will be using it? How will they be using it? How will the database be connected to other things? </b>
+
+#### Employees (instructors, trainers, and janitors):
+* Access your own timesheet, check and amend sessions for instructors and trainers, report difficulties or maintenance requirements.
+* They will use the database to enter their times, check assigned sessions, and provide comments on equipment.
+
+#### Members/Customers:
+* View available sessions, book sessions, change personal information, and view payment history.
+* They will use the system to access their accounts, and make reservations.
+
+#### Authority/Owners:
+* Access to the database is required, as is the ability to manage staff, monitor gym administration, and evaluate finances.
+* Owners will utilize the system for analytics, supervision, promotion setup, and general administration.
+
+#### Suppliers:
+* Check payment due dates, update product availability, and receive orders.
+* Log in to the system to manage inventories and check the status of orders.
+
+
+The database will be used to record information on members, workers, gym details, sessions, equipment, payments, suppliers, and marketing initiatives. It will be linked to the gym administration software interface, which workers and members will be able to access. Access may be restricted to suppliers.
+
+#### <b> Security and Privacy:  Discuss any security and privacy concerns that need to be addressed in the design. Consider user authentication, data encryption, and access controls. </b>
+
+* User Authentication: Each user role (members, employees, and owners) should have their own login credentials. Two-factor authentication should be considered for jobs with greater responsibility, particularly owners.
+
+* Encryption of sensitive data: Sensitive data, particularly payment information and owner credentials, should be encrypted. To prevent eavesdropping, the database connection should employ a secure protocol, such as SSL/TLS.
+
+* Restrictions for access: Role-based access restrictions should be introduced. For example, a teacher should not have access to financial records. Only authorized workers should be able to view/edit members' personal information, particularly payment-related information.
+
+* Backups and Recovery: Encrypted backups should be taken on a regular basis to protect data security. Consider developing a catastrophe recovery strategy.
+
+* Audit Trails: All database access and changes, particularly in crucial portions such as payments, should be documented for auditing reasons.
+
+* Secure the Application: Make sure the software that interfaces with the database is secure. Patch and upgrade the program on a regular basis.
+
+* Secure Sensitive Data: Mask the last four digits of a member's account card number. Passwords should be saved after hashing and salting. The details of the owner's key card should be encrypted and securely preserved.
+
+* Supplier Security: Ensure that suppliers may only access areas of the database that are relevant to their inventory and not other aspects of the database.
+
+* Concerns about privacy: Personal member data shall be safeguarded in accordance with applicable data protection legislation. Ensure that no personal information is disclosed without explicit authorization, and that members/customers have the ability to opt out of marketing mailings.
+
+## Conceptual design in Chen Notation
+
+```{dot}
+//| echo: false
+
+graph ER {
+    layout=neato;
+  scale=1.3;
+    node [shape=box]; Gym; Owner, Equipment, Payments, Members, Supplier, Employees, Sessions;
+    
+    node [shape=diamond,style=filled,color=lightgrey];
+    Owner -- manages [label="1",len=1.00]
+    manages -- Gym [label="1",len=1.00]
+    
+    Employees -- work_for [label="N",len=1.00]
+    work_for -- Gym [label="1",len=1.00]
+    
+    Employees -- teach [label="1",len=1.00]
+    teach -- Sessions [label="N",len=1.00]
+    
+    Members -- participate [label="M",len=1.00]
+    participate -- Sessions [label="N",len=1.00]
+    
+    Members -- make [label="M",len=1.00]
+    make -- Payments [label="N",len=1.00]
+    
+    Members -- go_to [label="N",len=1.00]
+    go_to -- Gym [label="1",len=1.00]
+    
+    Supplier -- supplies [label="N",len=1.00]
+    supplies -- Gym [label="1",len=1.00]
+    
+    Members -- use [label="1",len=1.00]
+    use -- Equipment [label="1",len=1.00]
+    
+}
+
+```
+
+
+
+## Conceptual design in Crows foot notation
+
+```{mermaid}
+erDiagram
+    Owner ||--|{ Gym : manages
+
+    Members ||--|{ Gym : go_to
+    Members ||--|{ Equipments : use
+    Members ||--|{ Payments : make
+    Members ||--|{ Sessions : participate
+
+    Employees ||--|{ Gym : work_for
+    Employees ||--|{ Sessions : teach
+
+    Supplier ||--|{ Gym : supplies
+
+    Gym{
+    string number_of_rooms
+    string address
+    string state
+    string city
+    string zipcode
+    string owner_ID
+    string gym_ID 
+    }
+
+    Employees {
+    string employee_ID
+    string DOB
+    string first_name
+    string last_name
+    string timesheet
+    string salary
+    string position
+    }
+
+    Members{
+    string member_ID
+    string first_name
+    string last_name
+    string address
+    string DOB
+    string payment_plan
+    }
+
+    Sessions{
+    string employee_ID
+    string day
+    string name
+    string gym_ID
+    string session_ID
+    string start_time
+    string end_time
+    }
+
+    Payments{
+    string member_ID
+    string receipt_num
+    string due_date
+    string receive_date
+    }
+
+    Owner{
+    string owner_ID
+    string name
+    string key_card
+    }
+
+    Supplier{
+    string supplier_ID
+    string name
+    }
+
+    Equipments{
+    string num_equipment
+    string equipment_type
+    string equipment_name
+    string gym_ID
+    string supplier_ID
+    }
+```
+
+
+## Relational Schemas
+
+* Gym(gym_ID, number_of_rooms, address, state, city, zipcode )
+* Employees( Employee_ID, DOB, first_name, last_name, timesheet, salary, position )
+* Members( member_ID, first_name, last_name, address, DOB, payment_plan )
+* Sessions( session_ID, name, room_num, start_time, end_time)
+* Payments( receipt_num, monthly_due_date, payment_received_date )
+* Owner( owner_ID, name, key_card)
+* Supplier( supplier_ID, name )
+* Equipments( equipment_name, equipment_type, num_equipment)
+
+## Constraints
+
+### <b>Gym</b>
+
+* Check if number_of_rooms is a positive integer.
+* Check if zipcode is in a valid format.
+
+### <b>Employees</b>
+
+* Ensure age is valid (i.e., between 16 and 100).
+* Ensure DOB is a valid date.
+* Ensure salary is positive.
+
+### <b>Members</b>
+
+* Ensure age of members is valid (i.e., between 16 and 100).
+* Ensure DOB is a valid date.
+
+### <b>Sessions</b>
+
+* Check if start_time is before end_time.
+
+### <b>Payments</b>
+
+* Ensure due_date is before or equal to receive_date.
+
+### <b>Owner</b>
+
+* No specific check constraint seems necessary given the provided attributes.
+
+### <b>Supplier</b>
+
+* No specific check constraint seems necessary given the provided attributes.
+
+### <b> Equipments </b>
+* Ensure that num_equipment is greater than zero.
+
+
+## Functional Dependiencies and Normalization
+
+* The decomposition of the initial relations (tables) into smaller, more manageable relations that
+satisfy specific normal forms, such as the Boyce-Codd Normal Form (BCNF) or Fourth Normal
+Form (4NF), is the process of normalization. In order to break down the supplied relations into
+BCNF, we must first determine the functional dependencies that exist in them based on the
+ERD.
+## Functional Dependencies
+### Gym:
+* No non-trivial functional dependencies other than the super key.
+### Employees:
+* employee_ID → {DOB, age, name, first_name, last_name, timesheet, salary, position}
+* work_for → Gym
+### Members:
+* member_ID → {name, address, DOB, payment_plan, age}
+* go_to → Gym
+### Sessions:
+* instructor_ID → {room_num, name, time, start_time, end_time}
+### Payments:
+* member_ID → {name, receipt_num, due_date, receive_date}
+### Owner:
+* owner_ID → {name, key_card}
+### Supplier:
+* supplier_ID → {name, equipment}
+### Equipments:
+* No non-trivial functional dependencies other than the super key.
+
+## BCNF Decomposition
+* By breaking out the relations based on the detected functional dependencies, we may
+accomplish BCNF and make sure that each new relation has a super key on the right-hand side
+of every functional dependency.
+
+ * Gym remains the same as it's already in BCNF.
+* Employees: {employee_ID, DOB, age, name, first_name, last_name, timesheet, salary, position, work_for}
+* Members remain the same as it's already in BCNF.
+* Sessions remains the same as it's already in BCNF.
+* Payments remain the same as it's already in BCNF.
+* Owner remains the same as it's already in BCNF.
+* Supplier remains the same as it's already in BCNF.
+* Equipments remains the same as it's already in BCNF
+
+## Queries:
+1. List all gyms managed by a specific owner.
+* π(Gym.name)σ(Owner.name='SpecificOwner', Owner ⨝ manages = Gym)
+
+2. Retrieve the names and salaries of employees who work at a particular gym
+* π(Employees.name, Employees.salary)σ(Gym.name='SpecificGym', Employees ⨝ work_for = Gym)
+
+3. Find all sessions taught by a specific employee.
+* π(Sessions.name)σ(Employees.name='SpecificEmployee', Employees ⨝ teach = Sessions)
+
+4. Display all sessions in which a specific member participates.
+* π(Sessions.name)σ(Members.name='SpecificMember', Members ⨝ participate = Sessions)
+
+5. Retrieve the payment details of a specific member.
+* π(Payments.receipt_num, Payments.due_date, Payments.receive_date)σ(Members.name='SpecificMember', Members ⨝ make = Payments)
+
+6. List all suppliers that supply equipment to a specific gym.
+* π(Supplier.name)σ(Gym.name='SpecificGym', Supplier ⨝ supplies = Gym)
+
+7. Display the equipment used by a specific member.
+* π(Equipments.equipment_name)σ(Members.name='SpecificMember', Members ⨝ use = Equipments)
+
+8. Retrieve the name and key card details of the owner of a specific gym.
+* π(Owner.name, Owner.key_card)σ(Gym.name='SpecificGym', Owner ⨝ manages = Gym)
+
+9. List all employees who work at gyms where a specific member participates in sessions.
+* π(Employees.name)σ(Members.name='SpecificMember', Members ⨝ participate = Sessions ⨝ Sessions.instructor_ID = Employees.employee_ID)
+
+10. Find the gym(s) where a specific employee works and teaches sessions simultaneously.
+* π(Gym.name)σ(Employees.name='SpecificEmployee' ^ Employees.work_for = Gym ^ Employees.teach = Sessions)
+
+11. Display sessions with their start and end times for a specific gym.
+* π(Sessions.name, Sessions.start_time, Sessions.end_time)σ(Gym.name='SpecificGym', Gym ⨝ Sessions)
+
+12. List all members who go to gyms managed by a specific owner.
+* π(Members.name)σ(Owner.name='SpecificOwner', Owner ⨝ manages = Gym ⨝ Members.go_to = Gym)
+
+13. Retrieve the name and equipment supplied by a specific supplier.
+* π(Supplier.name, Supplier.equipment)σ(Supplier.name='SpecificSupplier', Supplier)
+
+14. Find gyms supplied by suppliers that also supply equipment used by specific members.
+* π(Gym.name)σ(Members.name='SpecificMember', Members ⨝ use = Equipments ⨝ Equipments.equipment_name = Supplier.equipment ⨝ Supplier ⨝ supplies = Gym)
+
+15. Display the names of owners who manage gyms and their gym names.
+* ρ(GymOwner, π(Owner.name, Gym.name)σ(Owner ⨝ manages = Gym))
+
+16. Retrieve the sessions and their instructors for a specific gym.
+* π(Sessions.name, Employees.name)σ(Gym.name='SpecificGym', Gym ⨝ Sessions ⨝ Sessions.instructor_ID = Employees.employee_ID)
+
+17. List the total number and specific types of equipment supplied to a specific gym.
+* π(Equipments.total_num_equipment, Equipments.equipment_type)σ(Gym.name='SpecificGym', Gym ⨝ Equipments)
+
+18. Display the payment history for a specific member.
+* π(Payments.receipt_num, Payments.due_date, Payments.receive_date)σ(Members.name='SpecificMember', Members ⨝ make = Payments)
+
+19. Find all sessions that have not been participated in by any member.
+* π(Sessions.name) - π(Sessions.name)σ(Members ⨝ participate = Sessions)
+
+20. Retrieve the names and roles of all employees
+* π(Employees.name, Employees.position)
+
+## Sample Data
+
+### 1. Gym
+
+| name    | number_of_rooms | address           | state | city     | zipcode |
+|---------|-----------------|-------------------|-------|----------|---------|
+| FitLife | 5               | 123 Health St     | CA    | San Jose | 95112   |
+| GymNow  | 3               | 456 Fitness Ave   | NY    | New York | 10001   |
+| GetFit  | 4               | 789 Workout Blvd  | TX    | Dallas   | 75001   |
+| StayFit | 6               | 101 Active Lane   | WA    | Seattle  | 98101   |
+| BodyUp  | 2               | 202 Muscle Drive  | FL    | Miami    | 33101   |
+
+### 2. Employees
+
+| employee_ID | DOB       | age | name          | first_name | last_name | timesheet | salary | position   |
+|-------------|-----------|-----|---------------|------------|-----------|-----------|--------|------------|
+| E001        | 1990-01-10| 33  | John Smith    | John       | Smith     | 40 hrs    | 50000  | Trainer    |
+| E002        | 1985-05-15| 38  | Alice Jones   | Alice      | Jones     | 30 hrs    | 45000  | Reception  |
+| E003        | 1992-08-12| 31  | Bob White     | Bob        | White     | 45 hrs    | 52000  | Trainer    |
+| E004        | 1989-02-28| 34  | Carol Green   | Carol      | Green     | 35 hrs    | 48000  | Cleaner    |
+| E005        | 1995-12-01| 28  | David Johnson | David      | Johnson   | 38 hrs    | 51000  | Manager    |
+
+### 3. Members
+
+| member_ID | name          | address               | DOB       | payment_plan | age |
+|-----------|---------------|-----------------------|-----------|--------------|-----|
+| M001      | Mike Brown    | 111 Peace Ave         | 1995-06-15| Monthly      | 28  |
+| M002      | Sara Wilson   | 222 Calm St           | 1992-03-20| Yearly       | 31  |
+| M003      | Kate Turner   | 333 Relax Blvd        | 1998-11-10| Quarterly    | 25  |
+| M004      | Leo Anderson  | 444 Serene Lane       | 1987-04-05| Monthly      | 36  |
+| M005      | Jenny Martin  | 555 Tranquil Drive    | 1990-07-25| Yearly       | 33  |
+
+### 4. Sessions
+
+| instructor_ID | room_num | name        | time          | start_time | end_time   |
+|---------------|----------|-------------|---------------|------------|------------|
+| E001          | 101      | Yoga        | 10:00-11:00   | 10:00      | 11:00      |
+| E003          | 102      | Aerobics    | 11:30-12:30   | 11:30      | 12:30      |
+| E001          | 103      | Pilates     | 01:00-02:00   | 01:00      | 02:00      |
+| E003          | 104      | Zumba       | 02:30-03:30   | 02:30      | 03:30      |
+| E005          | 105      | Meditation  | 04:00-05:00   | 04:00      | 05:00      |
+
+### 5. Payments
+
+| member_ID | name        | receipt_num | due_date  | receive_date |
+|-----------|-------------|-------------|-----------|--------------|
+| M001      | Mike Brown  | R001        | 2023-11-01| 2023-10-15   |
+| M002      | Sara Wilson | R002        | 2023-11-05| 2023-10-20   |
+| M003      | Kate Turner | R003        | 2023-11-10| 2023-10-25   |
+| M004      | Leo Anderson| R004        | 2023-11-15| 2023-10-30   |
+| M005      | Jenny Martin| R005        | 2023-11-20| 2023-11-05   |
+
+### 6. Owner
+
+| owner_ID | name        | key_card |
+|----------|-------------|----------|
+| O001     |Anish Agrawal| G001     |
+
+
+### 7. Supplier
+
+| supplier_ID | name       | equipment  |
+|-------------|------------|------------|
+| S001        | SuppTech   | Treadmill  |
+| S002        | FitEquip   | Dumbbell   |
+| S003        | WorkTools  | Yoga Mat   |
+
+### 8. Equipments
+
+| total_num_equipment | equipment_type | equipment_name | specific_num_equipment |
+|---------------------|----------------|----------------|------------------------|
+| 10                  | Cardio         | Treadmill      | 5                      |
+| 30                  | Weight         | Dumbbell       | 20                     |
+| 15                  | Mat            | Yoga Mat       | 10                     |
+| 5                   | Machine        | Rowing Machine | 3                      |
+| 7                   | Cardio         | Cycle          | 4                      |
+
+## Gantt chart for tasks and milestones
+
+<p align="center"><img alt="GANNT CHART FOR MILESTONES AND TASKS" src="C:\Users\agarw\Documents\cmsc508-fa2023-prj-gymmanagementsystem\src\Screenshot 2023-10-15 114350.png" width = "2000" height = "1000"></p>
+
+```{mermaid}
+gantt
+    dateFormat  2023-10-14
+    title       GANTT diagram for milestones and tasks
+    excludes    weekends
+    
+    section Task Overview
+    Student introductions                  :done,  8-22,8-27
+    Team Formation                         :done,  8-22, 8-27
+    Team repo Setup and topic submission   :done,    9-4, 9-15
+    Create Database Design documentation and video  :done,    10-2, 10-15
+    implementation status report 1              :active, 10-16, 10-30
+    
+
+    section Problem Overview
+    Start Project                            :milestone, 2023-10-13
+    Completed task                           :done, 2023-10-13, 1d
+    Add Description                          :done, 2023-10-13, 1d
+    Finish Problem Overview                  :milestone, 2023-10-14
+    
+    section Problem Description
+    Start Problem Description                :milestone, 2023-10-03
+    Initial Overview                         :crit, done, 2023-10-03, 2023-10-05
+    End Problem Description                  :milestone, 2023-10-06
+    
+    section Chen's and Crows Foot Diagram
+    Begin Diagram Creation                   :milestone, 2023-10-01
+    Create entity and relationship blueprint :done, 2023-10-01, 1d
+    Created diagram with all attributes and entities :done, 2023-10-03, 1d
+    Add diagram to HTML                      :done, 2023-10-04, 1d
+    Finish Diagram                           :milestone, 2023-10-05
+    
+    section Relational Schema
+    Describe the primary key                 :done, 2023-10-10, 1d
+    Complete Schema                          :milestone, 2023-10-11
+    
+    section Functional Dependencies and normalization
+    Start Normalization                      :milestone, 2023-10-11
+    Describe the BCNF                        :done, 2023-10-12, 1d
+    Complete Normalization                   :milestone, 2023-10-13
+    
+    section Queries
+    Begin Queries                            :milestone, 2023-10-10
+    20 queries based on database             :active, 2023-10-10, 2d
+    End Queries                              :milestone, 2023-10-12
+    
+    section Sample Data
+    Data Creation Start                      :milestone, 2023-10-09
+    Data creation                            :done, 2023-10-09, 1d
+    End of Project                           :milestone, 2023-10-14
+```

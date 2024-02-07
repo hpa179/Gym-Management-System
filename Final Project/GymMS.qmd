@@ -1,0 +1,592 @@
+---
+title: GYM MANAGEMENT SYSTEM
+author: Harita Agarwal, Emil Baez Salazar, Anisha VijayKumar
+date: 12/11/23
+format:
+    html:
+        theme: cosmo
+        toc: true
+        embed-resources: true
+        code-copy: true
+        code_fold : true 
+---
+
+### <u>Project Links</u>
+
+Github:
+
+* <https://github.com/cmsc-vcu/cmsc508-fa2023-prj-gymmanagementsystem>
+
+Final Video URL:
+
+* <https://vcu.mediaspace.kaltura.com/media/Harita+Agarwal's+Zoom+Meeting/1_37j6rqfg>
+
+ER Diagram Design:
+
+* <https://lucid.app/lucidchart/76036f09-7a37-43ec-8189-af3c4a30f738/edit?viewport_loc=-1017%2C-600%2C4226%2C2252%2C0_0&invitationId=inv_5b7fafe1-c1d0-4dc7-a85b-7f327af2ce96>
+
+Project Proposal:
+
+* <https://vcu.mediaspace.kaltura.com/media/Harita+Agarwal%27s+Zoom+Meeting/1_y1ibykry>
+
+## Problem Overview
+* Gym Management System is a web application that helps the user to manage their gym memberships and activities in an easy way by providing them with various facilities, but at the same time for owner to overview all aspects of the gym rather than going through thousands of papers. 
+
+```{python}
+#| eval: true
+#| echo: false
+import os
+import sys
+import pandas as pd
+from tabulate import tabulate
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError, ProgrammingError
+from IPython.display import display, Markdown
+```
+
+
+# API definition: 
+
+Your database is to be accessible from the server through a RESTful API. What is your API definition? What are the various ways to get data? This should be documented so that someone wanting to leverage your database can understand how to access it.
+
+The base URL for the API is `http://localhost:5000`.
+
+## Endpoints
+
+`/api/tables`
+
+- **Method**: GET
+- **Description**: Retrieve a list of all tables in the database.
+
+`/api/<table_name>`
+
+- **Method**: GET
+- **Description**: Retrieve all data from a specified table. The table name is provided as a variable in the URL.
+
+`/api/employees/delete`
+
+- **Method**: POST
+- **Description**: Delete an employee record. The `employee_id` is provided in the form data.
+
+`/api/tables/update`
+
+- **Method**: POST
+- **Description**: Rename a table. The old and new table names are provided in JSON format in the request body.
+
+`/api/employees/filter`
+
+- **Method**: GET
+- **Description**: Filter employee records based on `min_timesheet` and `max_timesheet` parameters provided in the URL query string.
+
+### Request Methods
+
+- **GET**: Used for retrieving data (e.g., listing tables, fetching table contents, filtering employees).
+- **POST**: Used for operations that modify data (e.g., deleting an employee, renaming a table).
+
+### Response Format
+Responses are formatted in JSON. Depending on the endpoint, this could be a list of records, a success message, or an error message.
+
+### Error Handling
+Errors are handled by returning appropriate HTTP status codes and error messages in JSON format.
+
+
+## Crows-foot diagram
+The diagram highlights attributes such name, number of rooms, address, id, zipcode and shows the relationships between the gym, memebers, suppliers, and employees entities.
+```{mermaid}
+erDiagram
+    Owner ||--|{ Gym : manages
+
+    Members ||--|{ Gym : go_to
+    Members ||--|{ Equipments : use
+    Members ||--|{ Payments : make
+    Members ||--|{ Sessions : participate
+
+    Employees ||--|{ Gym : work_for
+    Employees ||--|{ Sessions : teach
+
+    Supplier ||--|{ Gym : supplies
+
+    Gym{
+    string number_of_rooms
+    string address
+    string state
+    string city
+    string zipcode
+    string owner_ID
+    string gym_ID 
+    }
+
+    Employees {
+    string employee_ID
+    string DOB
+    string first_name
+    string last_name
+    string timesheet
+    string salary
+    string position
+    }
+
+    Members{
+    string member_ID
+    string first_name
+    string last_name
+    string address
+    string DOB
+    string payment_plan
+    }
+
+    Sessions{
+    string employee_ID
+    string day
+    string name
+    string gym_ID
+    string session_ID
+    string start_time
+    string end_time
+    }
+
+    Payments{
+    string member_ID
+    string receipt_num
+    string due_date
+    string receive_date
+    }
+
+    Owner{
+    string owner_ID
+    string name
+    string key_card
+    }
+
+    Supplier{
+    string supplier_ID
+    string name
+    }
+
+    Equipments{
+    string num_equipment
+    string equipment_type
+    string equipment_name
+    string gym_ID
+    string supplier_ID
+    }
+```
+
+## Data in the gym managment database
+
+For the owners, gyms, employees, equipments, members, payments, sessions, suppliers tables, provide a description of each table and it's contents. Provided a listing of the entire table.
+
+### Owner table
+
+The *owner* table contains elements that describe personal information, such as first and last names,id, key card
+
+
+Below is a list of data in the *owner* table.
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'owner'  # Specify the table name
+get_table_data(table_name)
+```
+### Gyms table
+
+The *gyms* table contains elements that describe gym id, name, number of rooms, address(state, city, zipcode).
+
+
+Below is a list of data in the *gym* table.
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'gym'  # Specify the table name
+get_table_data(table_name)
+```
+### Employees table
+
+The *employees* table contains elements that describe their roles including their id, birthdate, age(derived), first and last name, salary, position, timesheet. 
+
+
+Below is a list of data in the *employees* table.
+
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'employees'  # Specify the table name
+get_table_data(table_name)
+```
+### Members table
+
+The *members* table contains elements that describe their roles including their id, name, address, birthdate, payment plan, and age. 
+
+Below is a list of data in the *members* table.
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'members'  # Specify the table name
+get_table_data(table_name)
+```
+### Sessions table
+
+The *sessions* table contains elements that describe sessionID, name, room number, time, and start and end time. 
+
+
+Below is a list of data in the *sessions* table.
+
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'sessions'  # Specify the table name
+get_table_data(table_name)
+```
+### Supplier table
+
+The *supplier* table contains elements that describe their supplier id and name. 
+
+
+Below is a list of data in the *supplier* table.
+
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'supplier'  # Specify the table name
+get_table_data(table_name)
+```
+
+### Equipments table
+
+The *equipments* table contains elements that describe their equipment name, equipment type, and number of equipments. 
+
+
+Below is a list of data in the *equipments* table.
+
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'equipment'  # Specify the table name
+get_table_data(table_name)
+```
+### Payments table
+
+The *payments* table contains elements that describe receipt_num, monthly_due_date, payment_received_date, and member_id.
+
+
+Below is a list of data in the *payments* table.
+
+
+```{python}
+import requests
+from tabulate import tabulate
+import pandas as pd  # Make sure to import pandas
+
+# Define the base URL of your Flask application
+base_url = 'http://localhost:5000/'
+
+def get_table_data(table_name):
+    response = requests.get(f"{base_url}api/{table_name}")
+    if response.status_code == 200:
+        data = response.json()
+        # Directly convert the list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        df=df.head(100)
+        # Use tabulate to print the DataFrame in a table format
+        print(tabulate(df, headers='keys', tablefmt='psql', showindex=False))
+    else:
+        print(response.json())  # Print the error message if not successful
+
+# Example usage
+table_name = 'payments'  # Specify the table name
+get_table_data(table_name)
+```
+
+## Sample Queries
+
+
+
+
+### Retrieve all gyms managed by a specific owner:
+```{python}
+sql = """
+SELECT gym.name, gym.address, gym.number_of_rooms
+FROM owner
+JOIN gym ON owner.owner_ID = gym.owner_ID
+WHERE owner.name = 'Harita Agarwal';
+"""
+```
+### Find the total number of equipment for a specific type:
+```{python}
+sql = """
+SELECT equipment_type, SUM(total_num_equipment) AS total_equipment FROM equipment WHERE equipment_type = 'Cardio' GROUP BY equipment_type;
+"""
+```
+### List all sessions taught by a specific instructor:
+```{python}
+sql="""
+SELECT sessions.name, sessions.room_num, sessions.time, employees.name AS instructor_name FROM sessions JOIN employees ON sessions.instructor_id = employees.employee_ID WHERE employees.name = 'Emily Miller';
+"""
+```
+### Retrieve the names and payment details of members who have a specific payment plan:
+```{python}
+sql="""
+SELECT members.name, payments.receipt_num, payments.due_date, payments.receive_date FROM members JOIN payments ON members.member_ID = payments.member_id WHERE members.payment_plan = ‘Priority%20$50/month’;
+"""
+```
+### Show the details of gyms located in a specific state:
+```{python}
+sql="""
+SELECT * FROM gym WHERE state = 'Virginia';
+"""
+```
+### Find all employees whose salary is above a certain threshold:
+```{python}
+sql="""
+SELECT * FROM employees WHERE salary > 50000;
+"""
+```
+
+## API Queries
+
+### API Delete
+
+Endpoint that deletes a specfic employees data.
+```{python}
+import requests
+
+# The URL to your Flask app's API endpoint for deleting an employee
+delete_api_url = 'http://localhost:5000/api/employees/delete'
+
+# The employee_id of the employee you want to delete
+employee_id_to_delete = 2
+
+# Make the POST request to delete the employee data
+response = requests.post(delete_api_url, data={'employee_id': str(employee_id_to_delete)})
+
+# Check the response from the server
+if response.status_code == 200:
+    print("Employee data deleted successfully!")
+else:
+    print(f"Failed to delete employee data: {response.status_code}")
+    print("Response:", response.json())
+```
+
+### API Filter
+
+Filters the employees based on their timesheets (hours worked per week).
+```{python}
+import requests
+
+# The URL to your Flask app's API endpoint for filtering employees
+filter_api_url = 'http://localhost:5000/api/employees/filter'
+
+# The criteria for filtering employees
+# Adjust the parameters to the actual names and types expected by the endpoint
+filter_criteria = {
+    'min_timesheet': 20,
+    'max_timesheet': 40
+}
+
+# Make the GET request to filter the employee data
+response = requests.get(filter_api_url, params=filter_criteria)
+
+# Check the response from the server
+if response.status_code == 200:
+    employees = response.json()
+    for employee in employees:
+        print(employee)
+else:
+    print(f"Failed to filter employee data: {response.status_code}")
+    try:
+        # Attempt to parse JSON response
+        print("Response:", response.json())
+    except JSONDecodeError:
+        # If JSON parsing fails, print the raw response text
+        print("Response could not be decoded as JSON:", response.text)
+```
+
+### API Update
+
+Updates the name of a specific table in this case employees.
+```{python}
+import requests
+import os
+import sys
+import pandas as pd
+from tabulate import tabulate
+
+# The URL to your Flask app's API endpoint for renaming a table
+rename_api_url = 'http://localhost:5000/api/tables/update'
+
+# The data for renaming the table
+rename_data = {
+    "old_name": "employees",
+    "new_name": "workers"
+}
+
+# Make the POST request to rename the table
+response = requests.post(rename_api_url, json=rename_data)
+
+# Check the response from the server
+if response.status_code == 200:
+    print("Table name updated successfully!")
+else:
+    print(f"Failed to update table name: {response.status_code}")
+    print("Response:", response.json())
+```
+
+## Future considerations: What needs to be done next to take your project to the next level? If you had more time, what would you do next?
+Authentication and Authorization:
+Implement a secure authentication mechanism, such as OAuth or JWT, to protect the API
+endpoints.
+Set up role-based access control (RBAC) to manage permissions for different user roles (admin,
+employee, member).
+
+Data Validation and Error Handling:
+Enhance input validation to ensure that the API handles invalid requests gracefully.
+
+Implement a robust error-handling mechanism and provide meaningful error messages to users.
+
+Caching:
+Integrate caching mechanisms to reduce the load on the database, especially for frequently
+accessed or static data.
+
+Testing:
+Provide test coverage by implementing unit tests, integration tests, and end-to-end tests.
+
+## Reflections:-
+
+I've found the overall journey to be both challenging and rewarding. We successfully
+implemented key features and established a functional API, meeting several milestones.
+However, challenges such as working together with the same code and connecting to the sql
+database and working on the code others have implemented was a little challenging. required
+adjustments to the initial timeline. Feedback from each other helped us solve almost everything.
+One notable reflection is the importance of effective collaboration. Our team's ability to
+communicate and adapt to unforeseen circumstances proved essential.
+In conclusion, this group project has been a valuable experience, reinforcing the significance of
+effective teamwork, adaptability, and continuous improvement. I am grateful for the opportunity
+to work with such a dedicated team, and I look forward to applying these lessons in future
+collaborative endeavors.
